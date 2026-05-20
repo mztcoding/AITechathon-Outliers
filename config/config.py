@@ -4,8 +4,8 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # API Keys
-GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "AIzaSyC2GVQbIYdWr85I28g3c8ykXUwP-s3DKdg")
-PINECONE_API_KEY = os.getenv("PINECONE_API_KEY", "pcsk_7LprTk_QQr7hQeKuVr2nHSoaYE9rt4bLfNut3XsKyeYimADzEEUBBccK4yU419kKULKRQn")
+GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
+PINECONE_API_KEY = os.getenv("PINECONE_API_KEY")
 
 # Pinecone settings
 PINECONE_INDEX_NAME = "freight-inspection"
