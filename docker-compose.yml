@@ -1,0 +1,47 @@
+version: '3.8'
+
+services:
+  redis:
+    image: redis:7-alpine
+    container_name: freightguard_redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    command: redis-server --appendonly yes --maxmemory 256mb --maxmemory-policy allkeys-lru
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    restart: unless-stopped
+
+  freightguard:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: freightguard_app
+    ports:
+      - "8501:8501"
+    environment:
+      - GEMINI_API_KEY=${GEMINI_API_KEY}
+      - GEMINI_MODEL=${GEMINI_MODEL:-gemini-1.5-flash-latest}
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - REDIS_DB=0
+      - FRAME_SAMPLE_RATE=${FRAME_SAMPLE_RATE:-15}
+      - YOLO_CONFIDENCE_THRESHOLD=${YOLO_CONFIDENCE_THRESHOLD:-0.45}
+      - MIN_BBOX_AREA=${MIN_BBOX_AREA:-3000}
+      - GEMINI_RATE_LIMIT=${GEMINI_RATE_LIMIT:-15}
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+    depends_on:
+      redis:
+        condition: service_healthy
+    volumes:
+      - ./:/app
+      - yolo_cache:/root/.cache
+    restart: unless-stopped
+
+volumes:
+  redis_data:
+  yolo_cache:
